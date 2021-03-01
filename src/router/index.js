@@ -7,7 +7,8 @@ VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
 }
 
-const Login = () => import('components/content/login/Login')
+const Login = () => import('views/login/Login')
+const Home = () => import('views/home/Home')
 
 Vue.use(VueRouter)
 
@@ -19,11 +20,28 @@ const routes = [
   {
     path: '/login',
     component: Login
+  },
+  {
+    path: '/home',
+    component: Home
   }
 ]
 
 const router = new VueRouter({
   routes
+})
+
+// 挂载路由全局导航守卫
+router.beforeEach((to,from,next) => {
+  // to代表访问的路径
+  // form代表从哪个路径跳转而来
+  // next表示放行
+
+  if(to.path === '/login') return next();
+  // 获取token
+  const token = window.sessionStorage.getItem('token');
+  if(!token) return next('/login');
+  next();
 })
 
 export default router
