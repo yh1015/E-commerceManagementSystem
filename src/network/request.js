@@ -8,6 +8,13 @@ export function request(config) {
     timeout: 5000
   })
 
+  //请求拦截器 添加token,保证拥有获取数据的权限
+  instance.interceptors.request.use(config => {
+    // 为请求头添加token验证Authorization字段
+    config.headers.Authorization = window.sessionStorage.getItem('token');
+    return config;
+  })
+
   // 响应拦截器
   instance.interceptors.response.use(res =>{
     return res.data
