@@ -1,6 +1,6 @@
 <template>
   <div class="welcome">
-    <h2>111</h2>
+    <h2>Welcome</h2>
   </div>
 </template>
 

@@ -13,7 +13,7 @@
       <el-aside :width="isCollapse ? '64px' : '200px' ">
         <!-- 折叠 -->
         <div class="toggle-button" @click="toggleMenu">
-          <i :class="isCollapse ? toggleIcon.left : toggleIcon.right"></i>
+          <i :class="isCollapse ? toggleIcon.right : toggleIcon.left"></i>
         </div>
         <!-- 菜单区域 -->
         <el-menu
