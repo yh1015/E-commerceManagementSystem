@@ -4,7 +4,6 @@
   :visible.sync="dialogVisible"
   :before-close="handleClose"
   :top="top"
-  :destroy-on-close="isDestroy"
   :width="width">
   <slot name="center"></slot>
   <span slot="footer" class="dialog-footer">
@@ -33,10 +32,6 @@ export default {
     top: {
       type: String,
       default: "15vh",
-    },
-    isDestroy: {
-      type: Boolean,
-      default: false
     },
   },
   methods: {

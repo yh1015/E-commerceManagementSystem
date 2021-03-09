@@ -34,10 +34,18 @@ export function getUserInfo(params) {
 }
 
 // 根据修改用户数据
-export function editUserInfo(data,params) {
+export function editUserInfo(params,data) {
   return request({
     method: 'put',
-    url: '/users/'+data,
-    params
+    url: '/users/'+ params,
+    data
+  })
+}
+
+// 删除用户
+export function deleteUserInfo(params) {
+  return request({
+    method: 'delete',
+    url: '/users/'+ params,
   })
 }

@@ -3,9 +3,7 @@
     <!-- 面包屑区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-      <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-      <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/users' }">用户列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 卡片视图区域 -->
@@ -53,13 +51,14 @@
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="showEdit(scope.row)"
+              @click="showEditModal(scope.row)"
             ></el-button>
             <!-- 删除按钮 -->
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
+              @click="removeUser(scope.row)"
             ></el-button>
             <!-- 分配角色按钮 -->
             <el-tooltip
@@ -94,7 +93,7 @@
       :dialogVisible="dialogVisible"
       width="50%"
       top="25vh"
-      :title="title"
+      title="添加用户"
       @cancel="cancel"
       @onSubmit="onSubmit"
     >
@@ -106,9 +105,9 @@
         slot="center"
       >
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="addForm.username" :disabled="!isShow"></el-input>
+          <el-input v-model="addForm.username"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password" v-show="isShow">
+        <el-form-item label="密码" prop="password">
           <el-input v-model="addForm.password"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
@@ -119,11 +118,45 @@
         </el-form-item>
       </el-form>
     </user-modal>
+    <!-- 修改用户区域 -->
+    <user-modal
+      :dialogVisible="editModal"
+      width="50%"
+      top="25vh"
+      title="修改信息"
+      @cancel="EditCancel"
+      @onSubmit="EditOnSubmit"
+    >
+      <el-form
+        :model="editForm"
+        :rules="editFormRules"
+        ref="editFormRef"
+        label-width="70px"
+        slot="center"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input v-model="editForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+    </user-modal>
   </div>
 </template>
 
 <script>
-import { getUsers, updataUser, addUser, getUserInfo } from "network/users";
+import {
+  getUsers,
+  updataUser,
+  addUser,
+  getUserInfo,
+  editUserInfo,
+  deleteUserInfo,
+} from "network/users";
 import UserModal from "components/content/modal/UserModal";
 
 export default {
@@ -156,10 +189,15 @@ export default {
       userList: [],
       total: 0,
       dialogVisible: false,
-      title: "添加用户",
+      editModal: false,
       addForm: {
         username: "",
         password: "",
+        email: "",
+        mobile: "",
+      },
+      editForm: {
+        username: "",
         email: "",
         mobile: "",
       },
@@ -184,11 +222,21 @@ export default {
         ],
         email: [
           { required: true, message: "请输入邮箱", trigger: "blur" },
-          { validator: checkEmail, trigger: "blur" },
+          // { validator: checkEmail, trigger: "blur" },
         ],
         mobile: [
           { required: true, message: "请输入手机号", trigger: "blur" },
-          { validator: checkMobile, trigger: "blur" },
+          // { validator: checkMobile, trigger: "blur" },
+        ],
+      },
+      editFormRules: {
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          // { validator: checkEmail, trigger: "blur" },
+        ],
+        mobile: [
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          // { validator: checkMobile, trigger: "blur" },
         ],
       },
     };
@@ -199,12 +247,6 @@ export default {
   },
   created() {
     this.getUsersList();
-  },
-  computed: {
-    // 判断是否显示密码框
-    isShow() {
-      return this.title == "添加用户" ? true : false;
-    },
   },
   methods: {
     // 请求角色
@@ -245,7 +287,6 @@ export default {
     },
     // 添加用户
     addUsers() {
-      this.title = "添加用户";
       this.dialogVisible = true;
       console.log(this.dialogVisible);
     },
@@ -256,6 +297,7 @@ export default {
         addUser(this.addForm).then((res) => {
           console.log(res);
           if (res.meta.status !== 201) {
+            console.log(this.addForm);
             this.$message.error("添加用户失败！");
           } else {
             this.$message.success("添加用户成功！");
@@ -264,24 +306,69 @@ export default {
           }
         });
       });
-      // this.dialogVisible = false;
     },
     // 关闭对话框
     cancel() {
       this.dialogVisible = false;
       this.$refs.addFormRef.resetFields();
     },
-    // 修改用户信息
+
+    // 展示用户信息
     showEditModal(data) {
+      console.log(data);
       getUserInfo(data.id).then((res) => {
         if (res.meta.status !== 200) {
           this.$message.error("查询用户失败");
         } else {
-          this.title = "修改信息";
-          this.dialogVisible = true;
-          this.addForm = res.data;
+          console.log(res);
+          this.editForm = res.data;
+          this.editModal = true;
         }
       });
+    },
+    // 打开修改用户界面
+    EditCancel() {
+      this.editModal = false;
+      this.$refs.editFormRef.resetFields();
+    },
+    //修改用户
+    EditOnSubmit() {
+      this.$refs.editFormRef.validate((valid) => {
+        if (!valid) return;
+        editUserInfo(this.editForm.id, {
+          email: this.editForm.email,
+          mobile: this.editForm.mobile,
+        }).then((res) => {
+          if (res.meta.status !== 200) {
+            this.$message.error("修改用户信息失败");
+          } else {
+            console.log(res)
+            this.editModal = false;
+            this.getUsersList();
+            this.$message.success("修改用户信息成功");
+          }
+        });
+      });
+    },
+    // 删除用户
+    removeUser(data) {
+      console.log(data)
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(res => {
+          deleteUserInfo(data.id).then(res => {
+            if (res.meta.status !== 200) {
+            this.$message.error("删除用户信息失败");
+          } else {
+            this.getUsersList();
+            this.$message.success("删除用户信息成功");
+          }
+          })
+        }).catch(err => {
+          this.$message.info('已取消删除')
+        })
     },
   },
 };
