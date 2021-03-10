@@ -3,8 +3,8 @@
     <!-- 面包屑区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item >用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item >用户列表</el-breadcrumb-item>
+      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 卡片视图区域 -->
@@ -72,6 +72,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="setRole(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -146,6 +147,32 @@
         </el-form-item>
       </el-form>
     </user-modal>
+    <!-- 分配角色区域 -->
+    <user-modal
+      :dialogVisible="isShowSetRole"
+      width="50%"
+      top="25vh"
+      title="分配角色"
+      @cancel="setCancel"
+      @onSubmit="setOnSubmit"
+    >
+      <div slot="center">
+        <p>当前的用户：{{ userInfo.username }}</p>
+        <p>当前的角色：{{ userInfo.role_name }}</p>
+        <p>
+          分配新角色：
+          <el-select v-model="selectedRoleId" placeholder="请选择">
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+    </user-modal>
   </div>
 </template>
 
@@ -157,6 +184,8 @@ import {
   getUserInfo,
   editUserInfo,
   deleteUserInfo,
+  getRoles,
+  putRoles
 } from "network/users";
 import UserModal from "components/content/modal/UserModal";
 
@@ -191,6 +220,10 @@ export default {
       total: 0,
       dialogVisible: false,
       editModal: false,
+      isShowSetRole: false,
+      userInfo: {},
+      rolesList: [],
+      selectedRoleId: '',
       addForm: {
         username: "",
         password: "",
@@ -343,7 +376,7 @@ export default {
           if (res.meta.status !== 200) {
             this.$message.error("修改用户信息失败");
           } else {
-            console.log(res)
+            console.log(res);
             this.editModal = false;
             this.getUsersList();
             this.$message.success("修改用户信息成功");
@@ -353,23 +386,60 @@ export default {
     },
     // 删除用户
     removeUser(data) {
-      console.log(data)
-      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(res => {
-          deleteUserInfo(data.id).then(res => {
+      console.log(data);
+      this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then((res) => {
+          deleteUserInfo(data.id).then((res) => {
             if (res.meta.status !== 200) {
-            this.$message.error("删除用户信息失败");
-          } else {
-            this.getUsersList();
-            this.$message.success("删除用户信息成功");
-          }
-          })
-        }).catch(err => {
-          this.$message.info('已取消删除')
+              this.$message.error("删除用户信息失败");
+            } else {
+              this.getUsersList();
+              this.$message.success("删除用户信息成功");
+            }
+          });
         })
+        .catch((err) => {
+          this.$message.info("已取消删除");
+        });
+    },
+    // 打开分配权限弹出框
+    setRole(data) {
+      this.isShowSetRole = true;
+      this.userInfo = data;
+      getRoles().then((res) => {
+        console.log(res);
+        if (res.meta.status !== 200) {
+          return this.$message.error("获取角色列表失败");
+        } else {
+          this.rolesList = res.data;
+        }
+      });
+    },
+    // 关闭分配权限弹出框
+    setCancel() {
+      this.isShowSetRole = false;
+      this.selectedRoleId = '';
+      this.userInfo = {};
+    },
+    // 提交分配权限弹出框
+    setOnSubmit() {
+      if(!this.selectedRoleId) {
+        this.$message.error('请选择要分配的角色!')
+      }
+      putRoles(this.userInfo.id,{rid: this.selectedRoleId}).then(res => {
+        console.log(res)
+        if (res.meta.status !== 200) {
+          return this.$message.error("更新角色失败!");
+        }else{
+          this.$message.success("更新角色成功!");
+          this.getUsersList()
+          this.isShowSetRole = false
+        }
+      })
     },
   },
 };

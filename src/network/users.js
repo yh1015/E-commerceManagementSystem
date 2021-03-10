@@ -49,3 +49,20 @@ export function deleteUserInfo(params) {
     url: '/users/'+ params,
   })
 }
+
+// 展示角色列表
+export function getRoles() {
+  return request({
+    method: 'get',
+    url: '/roles',
+  })
+}
+
+// 分配用户角色
+export function putRoles(id,data) {
+  return request({
+    method: 'put',
+    url: '/users/' + id + '/role',
+    data
+  })
+}

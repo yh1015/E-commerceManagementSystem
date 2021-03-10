@@ -3,6 +3,7 @@
   :title="title"
   :visible.sync="dialogVisible"
   :before-close="handleClose"
+  @close="handleClose"
   :top="top"
   :width="width">
   <slot name="center"></slot>
