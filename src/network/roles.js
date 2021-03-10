@@ -32,3 +32,37 @@ export function putRights(params,data) {
     data
   })
 }
+
+// 添加角色
+export function addRoles(data) {
+  return request({
+    method: 'post',
+    url: '/roles',
+    data
+  })
+}
+
+//根据id查询角色 
+export function getRolesById(id) {
+  return request({
+    method: 'get',
+    url: '/roles/' + id,
+  })
+}
+
+// 编辑角色
+export function putRoles(id,data) {
+  return request({
+    method: 'put',
+    url: '/roles/' + id,
+    data
+  })
+}
+
+// 删除角色
+export function removeRoles(id) {
+  return request({
+    method: 'delete',
+    url: '/roles/' + id,
+  })
+}
