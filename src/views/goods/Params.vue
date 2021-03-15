@@ -97,7 +97,30 @@
           >
           <!-- 静态参数表格 -->
           <el-table :data="onlyTableData" border stripe>
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <el-tag
+                  v-for="(item, index) in scope.row.attr_vals"
+                  :key="index"
+                  closable
+                  @close="handleClose(index, scope.row)"
+                  >{{ item }}</el-tag
+                >
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                >
+                </el-input>
+                <el-button v-else size="small" @click="showInput(scope.row)"
+                  >+ New Tag</el-button
+                >
+              </template>
+            </el-table-column>
             <el-table-column type="index" label="#"></el-table-column>
             <el-table-column
               label="属性名称"
