@@ -15,6 +15,9 @@ const Rights = () => import('views/power/Rights')
 const Roles = () => import('views/power/Roles')
 const Category = () => import('views/goods/Category')
 const Params = () => import('views/goods/Params')
+const List = () => import('views/goods/List')
+const AddPage = () => import('views/goods/childrenComp/AddPage')
+
 
 Vue.use(VueRouter)
 
@@ -55,6 +58,14 @@ const routes = [
       {
         path: '/params',
         component: Params
+      },
+      {
+        path: '/goods',
+        component: List
+      },
+      {
+        path: '/goods/add',
+        component: AddPage
       },
     ]
   }
