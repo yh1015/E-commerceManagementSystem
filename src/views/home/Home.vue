@@ -10,7 +10,7 @@
     </el-header>
     <el-container>
       <!-- 左侧边栏区域 -->
-      <el-aside :width="isCollapse ? '64px' : '200px' ">
+      <el-aside :width="isCollapse ? '64px' : '200px'">
         <!-- 折叠 -->
         <div class="toggle-button" @click="toggleMenu">
           <i :class="isCollapse ? toggleIcon.right : toggleIcon.left"></i>
@@ -23,10 +23,10 @@
           text-color="#fff"
           active-text-color="#409eff"
           unique-opened
-          :collapse = "isCollapse"
-          :collapse-transition = "false"
+          :collapse="isCollapse"
+          :collapse-transition="false"
           router
-          :default-active = "activePath"
+          :default-active="activePath"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -40,7 +40,7 @@
             </template>
             <!-- 二级菜单 -->
             <el-menu-item
-              :index=" '/' + subItem.path"
+              :index="'/' + subItem.path"
               v-for="subItem in item.children"
               :key="subItem.id"
               @click="saveNavstatus('/' + subItem.path)"
@@ -78,18 +78,18 @@ export default {
       },
       // 折叠图标
       toggleIcon: {
-        left: 'el-icon-s-fold',
-        right: 'el-icon-s-unfold'
+        left: "el-icon-s-fold",
+        right: "el-icon-s-unfold",
       },
       // 是否折叠
       isCollapse: false,
       // 被激活的地址
-      activePath: '',
+      activePath: "",
     };
   },
   created() {
     this.getPermissionMenus();
-    this.activePath = window.sessionStorage.getItem('activePath')
+    this.activePath = window.sessionStorage.getItem("activePath");
   },
   methods: {
     // 请求权限菜单
@@ -102,18 +102,25 @@ export default {
     },
     // 退出
     logout() {
-      window.sessionStorage.clear();
-      this.$router.push("/login");
+      this.$confirm("真的要注销登录吗？, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then((res) => {
+          window.sessionStorage.clear();
+          this.$router.push("/login");
+        })
     },
     // 切换菜单
     toggleMenu() {
-      this.isCollapse = !this.isCollapse
+      this.isCollapse = !this.isCollapse;
     },
     // 保存菜单路由的值
     saveNavstatus(activePath) {
-      window.sessionStorage.setItem('activePath',activePath)
-      this.activePath = activePath
-    }
+      window.sessionStorage.setItem("activePath", activePath);
+      this.activePath = activePath;
+    },
   },
 };
 </script>
